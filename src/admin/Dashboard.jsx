@@ -12,7 +12,7 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/orders");
+      const res = await axios.get("https://aquadude-backend.onrender.com/api/orders");
 
       const orders = res.data.data;
 

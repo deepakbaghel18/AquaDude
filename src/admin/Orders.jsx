@@ -10,7 +10,7 @@ export default function Orders() {
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/orders");
+      const res = await axios.get("https://aquadude-backend.onrender.com/api/orders");
       setOrders(res.data.data);
     } catch (err) {
       console.log(err);
@@ -19,7 +19,7 @@ export default function Orders() {
 
   const markDelivered = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/orders/${id}`);
+      await axios.put(`https://aquadude-backend.onrender.com/api/orders/${id}`);
 
       fetchOrders();
     } catch (err) {
