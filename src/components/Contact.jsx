@@ -66,7 +66,7 @@ export default function Contact() {
   const handleSubmit = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/orders",
+        "https://aquadude-backend.onrender.com/api/orders",
         {
           ...form,
           totalPrice,
