@@ -16,7 +16,16 @@ const createOrder = async (req, res) => {
 
     const totalPrice = quantity * price;
 
+    // Generate customer-friendly Order ID
+    const orderId =
+      "AQUA-" +
+      Math.random()
+        .toString(36)
+        .substring(2, 8)
+        .toUpperCase();
+
     const order = await Order.create({
+      orderId,
       name,
       phone,
       address,
@@ -64,6 +73,42 @@ const getOrders = async (req, res) => {
 };
 
 // ==============================
+// Get Single Order
+// ==============================
+const getOrderById = async (req, res) => {
+  try {
+    // First try the customer-friendly Order ID
+    let order = await Order.findOne({
+      orderId: req.params.id,
+    });
+
+    // If not found, try the old MongoDB ID
+    if (!order) {
+      order = await Order.findById(req.params.id);
+    }
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: order,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ==============================
 // Update Order Status
 // ==============================
 const updateOrderStatus = async (req, res) => {
@@ -77,6 +122,13 @@ const updateOrderStatus = async (req, res) => {
         new: true,
       }
     );
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -98,7 +150,14 @@ const updateOrderStatus = async (req, res) => {
 // ==============================
 const deleteOrder = async (req, res) => {
   try {
-    await Order.findByIdAndDelete(req.params.id);
+    const order = await Order.findByIdAndDelete(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -120,6 +179,7 @@ const deleteOrder = async (req, res) => {
 module.exports = {
   createOrder,
   getOrders,
+  getOrderById,
   updateOrderStatus,
   deleteOrder,
 };
