@@ -16,7 +16,6 @@ const createOrder = async (req, res) => {
 
     const totalPrice = quantity * price;
 
-    // Generate customer-friendly Order ID
     const orderId =
       "AQUA-" +
       Math.random()
@@ -33,6 +32,7 @@ const createOrder = async (req, res) => {
       quantity,
       price,
       totalPrice,
+      status: "Pending",
     });
 
     res.status(201).json({
@@ -77,12 +77,10 @@ const getOrders = async (req, res) => {
 // ==============================
 const getOrderById = async (req, res) => {
   try {
-    // First try the customer-friendly Order ID
     let order = await Order.findOne({
       orderId: req.params.id,
     });
 
-    // If not found, try the old MongoDB ID
     if (!order) {
       order = await Order.findById(req.params.id);
     }
@@ -113,10 +111,32 @@ const getOrderById = async (req, res) => {
 // ==============================
 const updateOrderStatus = async (req, res) => {
   try {
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "Pending",
+      "Out for Delivery",
+      "Delivered",
+    ];
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required",
+      });
+    }
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order status",
+      });
+    }
+
     const order = await Order.findByIdAndUpdate(
       req.params.id,
       {
-        status: "Delivered",
+        status,
       },
       {
         new: true,
@@ -132,7 +152,7 @@ const updateOrderStatus = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Order Delivered Successfully",
+      message: `Order status updated to ${status}`,
       data: order,
     });
   } catch (error) {
